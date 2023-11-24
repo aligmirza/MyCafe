@@ -618,19 +618,66 @@ public class InventorySystem {
     // Add user
     private void addUser() {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter username: ");
-        String username = scanner.nextLine();
+
+        // Get a unique username without spaces
+        String username;
+        boolean usernameValid;
+        do {
+            System.out.print("Enter username (without spaces): ");
+            username = scanner.nextLine();
+            usernameValid = isUsernameValid(username);
+            if (!usernameValid) {
+                System.out.println("Invalid username. Please enter a unique username without spaces.");
+            }
+        } while (!usernameValid);
+
         System.out.print("Enter password: ");
         String password = scanner.nextLine();
         System.out.print("Enter name: ");
         String name = scanner.nextLine();
 
+        UserRole userRole = null;
+        do {
+            System.out.print("Enter new role (1 for ADMIN, 2 for SALESMAN): ");
+            String role = scanner.nextLine();
+
+            if (role.equals("1")) {
+                userRole = UserRole.ADMIN;
+            } else if (role.equals("2")) {
+                userRole = UserRole.SALESMAN;
+            } else {
+                System.out.println("Invalid role. Please enter 1 for ADMIN or 2 for SALESMAN.");
+            }
+        } while (userRole == null);
+
         User newUser = new User(username, password, name);
+
+        // Check if the username is unique
+        if (!isUsernameUnique(username)) {
+            System.out.println("Username is not unique. User not added.");
+            return;
+        }
+
+        newUser.setRole(userRole);
         users.add(newUser);
 
         saveUserData();
         System.out.println("User added successfully.");
     }
+
+    private boolean isUsernameUnique(String username) {
+        for (User existingUser : users) {
+            if (existingUser.getUsername().equals(username)) {
+                return false; // Username is not unique
+            }
+        }
+        return true; // Username is unique
+    }
+
+    private boolean isUsernameValid(String username) {
+        return !username.contains(" ");
+    }
+
 
     // Update user
     private void updateUser() {
@@ -687,23 +734,6 @@ public class InventorySystem {
         System.out.println("User deleted successfully.");
     }
 
-    // Create default admin user
-//    private void createDefaultAdminUser() {
-//        if (users.isEmpty()) {
-//            Scanner scanner = new Scanner(System.in);
-//            System.out.print("Enter admin username: ");
-//            String adminUsername = scanner.nextLine();
-//            System.out.print("Enter admin password: ");
-//            String adminPassword = scanner.nextLine();
-//
-//            User adminUser = new User(adminUsername, adminPassword, "admin");
-//            adminUser.setRole(UserRole.ADMIN);
-//            users.add(adminUser);
-//
-//            saveUserData();
-//            System.out.println("Default admin user created successfully.");
-//        }
-//    }
 
     // Save user data to files
     private void saveUserData() {
@@ -718,7 +748,7 @@ public class InventorySystem {
     private void displayUsers() {
         System.out.println("\n====== Users ======");
         for (User user : users) {
-            System.out.println("Username: " + user.getUsername() + ", Name: " + user.getName() + ", Role: " + user.getRole());
+            System.out.println(", Name: " + user.getName() +", "+ "Username: " + user.getUsername() +", "+ "Password: " + user.getPassword() +" " + ", Role: " + user.getRole());
         }
     }
 
