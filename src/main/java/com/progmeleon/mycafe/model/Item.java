@@ -54,7 +54,7 @@ public class Item implements Serializable {
 
     @Override
     public String toString() {
-        return "Item [ID: " + itemId + ", Name: " + itemName + ", Price: $" + itemPrice + ", Category ID: " + categoryId + "]";
+        return "Item [ID: " + itemId + ", Name: " + itemName + ", Price: PKR" + itemPrice + ", Category ID: " + categoryId + "]";
     }
 
     // Check if the item already exists
