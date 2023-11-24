@@ -493,7 +493,7 @@ public class InventorySystem {
     }
 
     // Save data to files
-    private void saveData() {
+    public void saveData() {
         try (ObjectOutputStream categoryOutputStream = new ObjectOutputStream(new FileOutputStream("categories.ser"));
              ObjectOutputStream itemOutputStream = new ObjectOutputStream(new FileOutputStream("items.ser"))) {
 
