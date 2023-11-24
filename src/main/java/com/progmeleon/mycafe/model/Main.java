@@ -16,11 +16,13 @@ public class Main {
             System.out.println("3. Display Items");
             System.out.println("4. Change Username");
             System.out.println("5. Change Password");
-            System.out.println("6. Exit");
+            System.out.println("6. Save Data and Exit");
 
             System.out.print("Enter your choice: ");
             int choice = scanner.nextInt();
             scanner.nextLine(); // Consume the newline character
+
+
 
             switch (choice) {
                 case 1:
@@ -51,6 +53,7 @@ public class Main {
                     inventorySystem.changePassword(newPassword);
                     break;
                 case 6:
+                    inventorySystem.saveData();
                     System.out.println("Exiting the program. Thank you!");
                     System.exit(0);
                 default:
