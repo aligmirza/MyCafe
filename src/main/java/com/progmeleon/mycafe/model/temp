@@ -1,0 +1,500 @@
+package com.progmeleon.mycafe.model;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+public class InventorySystem {
+    private List<Category> categories;
+    private List<Item> items;
+    private List<User> users;
+    private User currentUser;
+    private UserRole currentUserRole;
+
+    public InventorySystem() {
+        categories = new ArrayList<>();
+        items = new ArrayList<>();
+        users = new ArrayList<>();
+        currentUser = null;
+        currentUserRole = null;
+        loadExistingData();
+    }
+
+    public void start() {
+        authenticateUser();
+        displayMenu();
+    }
+
+    // Load existing data from files
+    private void loadExistingData() {
+        try (ObjectInputStream categoryInputStream = new ObjectInputStream(new FileInputStream("categories.ser"));
+             ObjectInputStream itemInputStream = new ObjectInputStream(new FileInputStream("items.ser"));
+             ObjectInputStream userInputStream = new ObjectInputStream(new FileInputStream("users.ser"))) {
+
+            categories = (List<Category>) categoryInputStream.readObject();
+            items = (List<Item>) itemInputStream.readObject();
+            users = (List<User>) userInputStream.readObject();
+
+            // Set initial admin user if the list is empty
+            if (users.isEmpty()) {
+                User adminUser = new User("Admin", "admin", "admin", UserRole.ADMIN);
+                users.add(adminUser);
+            }
+
+            System.out.println("Data loaded successfully.");
+
+        } catch (FileNotFoundException e) {
+            System.out.println("No existing data found. Starting with an empty inventory.");
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // User authentication method
+    private void authenticateUser() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        User user = new User(null, username, password, null);
+
+        if (isValidUser(user)) {
+            currentUserRole = getUserRoleByUsername(username);
+            currentUser = user;
+            System.out.println("Login successful. Welcome, " + currentUser.getName() + "!");
+        } else {
+            System.out.println("Invalid credentials. Exiting the program.");
+            System.exit(0);
+        }
+    }
+
+    // Check if the provided user credentials are valid
+    private boolean isValidUser(User user) {
+        return users.stream().anyMatch(u -> u.authenticate(user.getUsername(), user.getPassword(), null));
+    }
+
+    // Get the role of the current user
+    public UserRole getCurrentUserRole() {
+        return currentUserRole;
+    }
+
+    // Get the role of a user by username
+    private UserRole getUserRoleByUsername(String username) {
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return user.getRole();
+            }
+        }
+        return null;
+    }
+
+    // Display the main menu based on user role
+    private void displayMenu() {
+        switch (currentUserRole) {
+            case ADMIN:
+                displayAdminMenu();
+                break;
+            case SALESMAN:
+                displaySalesmanMenu();
+                break;
+            default:
+                System.out.println("Invalid user role. Exiting the program.");
+                System.exit(0);
+        }
+    }
+
+    // Display the admin menu
+    private void displayAdminMenu() {
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\n====== Admin Menu ======");
+            System.out.println("1. Manage Categories");
+            System.out.println("2. Manage Items");
+            System.out.println("3. Change Username");
+            System.out.println("4. Change Password");
+            System.out.println("5. Logout");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    manageCategories();
+                    break;
+                case 2:
+                    manageItems();
+                    break;
+                case 3:
+                    changeUsername();
+                    break;
+                case 4:
+                    changePassword();
+                    break;
+                case 5:
+                    System.out.println("Logout successful. Exiting the program.");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (true);
+    }
+
+    // Display the salesman menu
+    private void displaySalesmanMenu() {
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\n====== Salesman Menu ======");
+            System.out.println("1. Display Categories");
+            System.out.println("2. Display Items");
+            System.out.println("3. Change Username");
+            System.out.println("4. Change Password");
+            System.out.println("5. Logout");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    displayCategories();
+                    break;
+                case 2:
+                    displayItems();
+                    break;
+                case 3:
+                    changeUsername();
+                    break;
+                case 4:
+                    changePassword();
+                    break;
+                case 5:
+                    System.out.println("Logout successful. Exiting the program.");
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (true);
+    }
+
+    private void manageCategories() {
+            Scanner scanner = new Scanner(System.in);
+            int choice;
+
+            do {
+                System.out.println("\n====== Category Management ======");
+                System.out.println("1. Add Category");
+                System.out.println("2. Delete Category");
+                System.out.println("3. Update Category");
+                System.out.println("4. Display Categories");
+                System.out.println("5. Back to Admin Menu");
+                System.out.print("Enter your choice: ");
+                choice = scanner.nextInt();
+
+                switch (choice) {
+                    case 1:
+                        addCategory();
+                        break;
+                    case 2:
+                        deleteCategory();
+                        break;
+                    case 3:
+                        updateCategory();
+                        break;
+                    case 4:
+                        displayCategories();
+                        break;
+                    case 5:
+                        return;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } while (true);
+        }
+
+        // Manage items (Admin)
+        private void manageItems() {
+            Scanner scanner = new Scanner(System.in);
+            int choice;
+
+            do {
+                System.out.println("\n====== Item Management ======");
+                System.out.println("1. Add Item");
+                System.out.println("2. Delete Item");
+                System.out.println("3. Update Item");
+                System.out.println("4. Display Items");
+                System.out.println("5. Back to Admin Menu");
+                System.out.print("Enter your choice: ");
+                choice = scanner.nextInt();
+
+                switch (choice) {
+                    case 1:
+                        addItem();
+                        break;
+                    case 2:
+                        deleteItem();
+                        break;
+                    case 3:
+                        updateItem();
+                        break;
+                    case 4:
+                        displayItems();
+                        break;
+                    case 5:
+                        return;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } while (true);
+        }
+
+        // Display categories (Salesman)
+        private void displayCategories() {
+            System.out.println("\n====== Categories ======");
+            for (Category category : categories) {
+                System.out.println(category.getName());
+            }
+        }
+
+        // Display items (Salesman)
+        private void displayItems() {
+            System.out.println("\n====== Items ======");
+            for (Item item : items) {
+                System.out.println(item);
+            }
+        }
+
+        // Add category
+        private void addCategory() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter category name: ");
+            String categoryName = scanner.nextLine();
+
+            Category newCategory = new ItemCategory(categoryName);
+            categories.add(newCategory);
+
+            saveData();
+            System.out.println("Category added successfully.");
+        }
+
+        // Delete category
+        private void deleteCategory() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter category name to delete: ");
+            String categoryName = scanner.nextLine();
+
+            categories.removeIf(category -> category.getName().equalsIgnoreCase(categoryName));
+
+            saveData();
+            System.out.println("Category deleted successfully.");
+        }
+
+        // Update category
+        private void updateCategory() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter category name to update: ");
+            String oldCategoryName = scanner.nextLine();
+            System.out.print("Enter new category name: ");
+            String newCategoryName = scanner.nextLine();
+
+            for (Category category : categories) {
+                if (category.getName().equalsIgnoreCase(oldCategoryName)) {
+                    category.setName(newCategoryName);
+                    saveData();
+                    System.out.println("Category updated successfully.");
+                    return;
+                }
+            }
+
+            System.out.println("Category not found.");
+        }
+
+        // Add item
+        private void addItem() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter item name: ");
+            String itemName = scanner.nextLine();
+            System.out.print("Enter item price: ");
+            double itemPrice = scanner.nextDouble();
+            scanner.nextLine(); // Consume the newline character
+            System.out.print("Enter item category: ");
+            String itemCategoryName = scanner.nextLine();
+
+            int categoryId = getCategoryIDByName(itemCategoryName);
+
+            if (categoryId != -1) {
+                Item newItem = new Item(itemName, itemPrice, categoryId);
+                items.add(newItem);
+                saveData();
+                System.out.println("Item added successfully.");
+            } else {
+                System.out.println("Category not found. Item not added.");
+            }
+        }
+
+        // Delete item
+        private void deleteItem() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter item name to delete: ");
+            String itemName = scanner.nextLine();
+
+            items.removeIf(item -> item.getName().equalsIgnoreCase(itemName));
+
+            saveData();
+            System.out.println("Item deleted successfully.");
+        }
+
+        // Update item
+        private void updateItem() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter item name to update: ");
+            String oldItemName = scanner.nextLine();
+            System.out.print("Enter new item name: ");
+            String newItemName = scanner.nextLine();
+            System.out.print("Enter new item price: ");
+            double newItemPrice = scanner.nextDouble();
+            scanner.nextLine(); // Consume the newline character
+            System.out.print("Enter new item category: ");
+            String newItemCategoryName = scanner.nextLine();
+
+            int newCategoryId = getCategoryIDByName(newItemCategoryName);
+
+            for (Item item : items) {
+                if (item.getName().equalsIgnoreCase(oldItemName)) {
+                    item.setName(newItemName);
+                    item.setPrice(newItemPrice);
+                    item.setCategoryID(newCategoryId);
+                    saveData();
+                    System.out.println("Item updated successfully.");
+                    return;
+                }
+            }
+
+            System.out.println("Item not found.");
+        }
+
+        // Save data to files
+        private void saveData() {
+            try (ObjectOutputStream categoryOutputStream = new ObjectOutputStream(new FileOutputStream("categories.ser"));
+                 ObjectOutputStream itemOutputStream = new ObjectOutputStream(new FileOutputStream("items.ser"))) {
+
+                categoryOutputStream.writeObject(categories);
+                itemOutputStream.writeObject(items);
+
+                System.out.println("Data saved successfully.");
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    private void changeUsername() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter your current password: ");
+            String currentPassword = scanner.nextLine();
+
+            if (currentUser.authenticate(currentUser.getUsername(), currentPassword, currentUserRole)) {
+                System.out.print("Enter your new username: ");
+                String newUsername = scanner.nextLine();
+                currentUser.setUsername(newUsername);
+
+                saveUserData();
+                System.out.println("Username changed successfully.");
+            } else {
+                System.out.println("Invalid password. Username not changed.");
+            }
+        }
+
+        // Change password
+        private void changePassword() {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter your current password: ");
+            String currentPassword = scanner.nextLine();
+
+            if (currentUser.authenticate(currentUser.getUsername(), currentPassword, currentUserRole)) {
+                System.out.print("Enter your new password: ");
+                String newPassword = scanner.nextLine();
+                currentUser.setPassword(newPassword);
+
+                saveUserData();
+                System.out.println("Password changed successfully.");
+            } else {
+                System.out.println("Invalid password. Password not changed.");
+            }
+        }
+
+        // Save user data to file
+        private void saveUserData() {
+            try (ObjectOutputStream userOutputStream = new ObjectOutputStream(new FileOutputStream("users.ser"))) {
+                userOutputStream.writeObject(users);
+                System.out.println("User data saved successfully.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    public static void displayItems(List<Item> items) {
+            Scanner scanner = new Scanner(System.in);
+
+            System.out.println("\n====== Items ======");
+            System.out.println("1. Display All Items");
+            System.out.println("2. Display Items by Category");
+            System.out.print("Enter your choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume the newline character
+
+            switch (choice) {
+                case 1:
+                    displayAllItems();
+                    break;
+                case 2:
+                    System.out.print("Enter category name: ");
+                    String categoryName = scanner.nextLine();
+                    displayItemsByCategory(categoryName);
+                    break;
+                default:
+                    System.out.println("Invalid choice. Displaying all items.");
+                    displayAllItems();
+            }
+        }
+
+        // Display all items
+        private static void displayAllItems() {
+            if (items.isEmpty()) {
+                System.out.println("No items available.");
+            } else {
+                for (Item item : items) {
+                    System.out.println(item);
+                }
+            }
+        }
+
+        // Display items by category
+        private static void displayItemsByCategory(String categoryName) {
+            if (items.isEmpty()) {
+                System.out.println("No items available.");
+            } else {
+                for (Item item : items) {
+                    if (item.getCategoryId() == getCategoryIDByName(categoryName)) {
+                        System.out.println(item);
+                    }
+                }
+            }
+        }
+
+        // Get category ID by name
+        private static int getCategoryIDByName(String categoryName) {
+            for (Category category : categories) {
+                if (category instanceof Category && category.getCategoryName().equalsIgnoreCase(categoryName)) {
+                    return category.getCategoryId();
+                }
+            }
+            return -1; // Return -1 if the category is not found
+        }
+}
