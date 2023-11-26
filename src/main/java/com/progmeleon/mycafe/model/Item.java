@@ -61,5 +61,10 @@ public class Item implements Serializable {
     public boolean equalsIgnoreCase(String itemNameToCompare, int categoryIdToCompare) {
         return this.itemName.equalsIgnoreCase(itemNameToCompare) && this.categoryId == categoryIdToCompare;
     }
+
+//    public Category getCategoryName() {
+//
+//        return null;
+//    }
 }
 

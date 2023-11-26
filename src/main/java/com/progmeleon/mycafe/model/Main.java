@@ -1,10 +1,12 @@
 package com.progmeleon.mycafe.model;
 
-import java.util.List;
-import java.util.Scanner;
+import com.progmeleon.mycafe.controller .InventorySystem;
+
+import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) {
+    // section main
+    public static void main(String[] args) throws IOException {
         new InventorySystem().start();
     }
 
