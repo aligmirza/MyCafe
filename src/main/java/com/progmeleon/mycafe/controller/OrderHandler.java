@@ -1,4 +1,9 @@
-package com.progmeleon.mycafe.model;
+package com.progmeleon.mycafe.controller;
+
+import com.progmeleon.mycafe.model.Item;
+import com.progmeleon.mycafe.model.Order;
+import com.progmeleon.mycafe.model.OrderStatus;
+import com.progmeleon.mycafe.model.User;
 
 import java.io.*;
 import java.util.ArrayList;
