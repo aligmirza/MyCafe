@@ -1,24 +1,35 @@
 package com.progmeleon.mycafe.controller;
 
-import com.progmeleon.mycafe.model.Category;
-import com.progmeleon.mycafe.model.Item;
-import com.progmeleon.mycafe.model.User;
-import com.progmeleon.mycafe.model.UserRole;
+import com.progmeleon.mycafe.config.ConfigureExistingData;
+import com.progmeleon.mycafe.config.DBConnector;
+import com.progmeleon.mycafe.model.*;
+
 
 import java.io.*;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
+import static com.progmeleon.mycafe.controller.FileHandler.saveDataToFile;
 import static com.progmeleon.mycafe.controller.ItemController.displayAllItems;
+//import static com.progmeleon.mycafe.controller.ItemController.displayItemsByCategory;
+import static com.progmeleon.mycafe.config.ConfigureExistingData.*;
 import static com.progmeleon.mycafe.controller.ItemController.displayItemsByCategory;
 
+
 public class InventorySystem {
-    private List<Category> categories;
-    private List<Item> items;
-    private List<User> users;
-    private User currentUser;
-    private UserRole currentUserRole = UserRole.ADMIN;
+
+    public static final String CATEGORIES_FILE_PATH = "categories.json";
+    public static final String ITEMS_FILE_PATH = "items.json";
+    public static final String USERS_FILE_PATH = "users.json";
+
+//    private List<Category> categories = ConfigureExistingData.categories;
+//    private List<Item> items = ConfigureExistingData.items;
+//    private List<User> users = ConfigureExistingData.users;
+    private static User currentUser;
+    private static UserRole currentUserRole = UserRole.ADMIN;
     private int flag = 1;
 
     private CategoryController categoryController;
@@ -26,75 +37,60 @@ public class InventorySystem {
     private UserController userController;
 
     public InventorySystem() {
-        categories = new ArrayList<>();
-        items = new ArrayList<>();
-        users = new ArrayList<>();
+//        categories = new ArrayList<>(ConfigureExistingData.categories);
+//        items = new ArrayList<>(ConfigureExistingData.items);
+//        users = new ArrayList<>(ConfigureExistingData.users);
         currentUser = null;
         currentUserRole = null;
-        loadExistingData();
+
+        // Move the initialization of controllers after loading existing data
 
         categoryController = new CategoryController(categories);
         itemController = new ItemController(items, categories);
         userController = new UserController(users);
     }
 
+
     public void start() {
-        authenticateUser();
+//        authenticateUser();
         displayMenu();
     }
 
-    // Load existing data from files
-// Load existing data from files
-    private void loadExistingData() {
-        try {
-            loadCategories();
-            loadItems();
-            loadUsers();
 
-            System.out.println("Data loaded successfully.");
 
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+    public void saveData() {
+        FileHandler.saveDataToFile( categories,CATEGORIES_FILE_PATH);
+        FileHandler.saveDataToFile( items,ITEMS_FILE_PATH);
+        FileHandler.saveDataToFile( users,USERS_FILE_PATH);
+
+        System.out.println("Data saved successfully.");
+    }
+
+    // Display the main menu based on user role
+    private void displayMenu() {
+        if (currentUserRole != null) {
+            switch (currentUserRole) {
+                case ADMIN:
+                    displayAdminMenu();
+                    break;
+                case SALESMAN:
+                    displaySalesmanMenu();
+                    break;
+                default:
+                    System.out.println("Invalid user role. Exiting the program.");
+                    System.exit(0);
+            }
+        } else {
+            System.out.println("User role is null. Exiting the program.");
+            System.exit(0);
         }
     }
 
-    private void loadCategories() throws IOException, ClassNotFoundException {
-        try (ObjectInputStream categoryInputStream = new ObjectInputStream(new FileInputStream("categories.ser"))) {
-            categories = (List<Category>) categoryInputStream.readObject();
-            System.out.println("Categories loaded successfully.");
-        } catch (EOFException | FileNotFoundException e) {
-            System.out.println("No existing category data found.");
-            createDefaultAdminUser();
-        }
-    }
+    // The rest of your code remains unchanged...
 
-    private void loadItems() throws IOException, ClassNotFoundException {
-        try (ObjectInputStream itemInputStream = new ObjectInputStream(new FileInputStream("items.ser"))) {
-            items = (List<Item>) itemInputStream.readObject();
-            System.out.println("Items loaded successfully.");
-        } catch (EOFException | FileNotFoundException e) {
-            System.out.println("No existing item data found.");
-            createDefaultAdminUser();
-        }
-    }
 
-    private void loadUsers() throws IOException, ClassNotFoundException {
-        try (ObjectInputStream userInputStream = new ObjectInputStream(new FileInputStream("users.ser"))) {
-            users = (List<User>) userInputStream.readObject();
-            System.out.println("User data loaded successfully.");
-        } catch (EOFException | FileNotFoundException e) {
-            System.out.println("No existing user data found.");
-            createDefaultAdminUser();
-        }
-    }
 
-    private void createDefaultAdminUser() {
-        User adminUser = new User("admin", "admin", "admin");
-        adminUser.setRole(UserRole.ADMIN);
-        users = new ArrayList<>();  // Initialize the users list
-        users.add(adminUser);
-        saveUserData();
-    }
+
 
     private void saveUserData() {
         try (ObjectOutputStream userOutputStream = new ObjectOutputStream(new FileOutputStream("users.ser"))) {
@@ -105,29 +101,47 @@ public class InventorySystem {
         }
     }
 
-    private void authenticateUser() {
+    public static void authenticateUser(String username, String password) {
         Scanner scanner = new Scanner(System.in);
 
         boolean isAuthenticated = false;
 
         do {
-            System.out.print("Enter your username: ");
-            String username = scanner.nextLine();
-            System.out.print("Enter your password: ");
-            String password = scanner.nextLine();
+//            System.out.print("Enter your username: ");
+//            String username = scanner.nextLine();
+//            System.out.print("Enter your password: ");
+//            String password = scanner.nextLine();
 
-            for (User user : users) {
-                if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
-                    currentUser = user;
-                    currentUserRole = user.getRole();
+            String selectQuery = "SELECT users.*, role.roleName " +
+                    "FROM users " +
+                    "JOIN role ON users.roleId = role.id " +
+                    "WHERE username = ? AND password = ?";
+
+            try {
+                Connection connection = DBConnector.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);
+                preparedStatement.setString(1, username);
+                preparedStatement.setString(2, password);  // Note: Replace this with hashed password in real-world scenarios
+
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                if (resultSet.next()) {
+                    currentUser = new User(
+                            resultSet.getString("name"),
+                            resultSet.getString("username"),
+                            resultSet.getString("password"),  // Note: Replace this with hashed password in real-world scenarios
+                            UserRole.valueOf(resultSet.getString("roleName").toUpperCase())
+                    );
+
+                    currentUserRole = currentUser.getRole();
                     System.out.println("Login successful. Welcome, " + currentUser.getName() + "!");
                     isAuthenticated = true;
-                    break;
+                } else {
+                    System.out.println("Invalid credentials. Please try again.");
                 }
-            }
 
-            if (!isAuthenticated) {
-                System.out.println("Invalid credentials. Please try again.");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
 
         } while (!isAuthenticated);
@@ -154,26 +168,6 @@ public class InventorySystem {
         return null;
     }
 
-    // Display the main menu based on user role
-    private void displayMenu() {
-        if (currentUserRole != null) {
-            switch (currentUserRole) {
-                case ADMIN:
-                    displayAdminMenu();
-                    break;
-                case SALESMAN:
-                    displaySalesmanMenu();
-                    break;
-                default:
-                    System.out.println("Invalid user role. Exiting the program.");
-                    System.exit(0);
-            }
-        } else {
-            System.out.println("User role is null. Exiting the program.");
-            System.exit(0);
-        }
-    }
-
     private void displayAdminMenu() {
         Scanner scanner = new Scanner(System.in);
         int choice;
@@ -183,35 +177,44 @@ public class InventorySystem {
             System.out.println("1. Manage Categories");
             System.out.println("2. Manage Items");
             System.out.println("3. Manage Users");
-            System.out.println("4. Change Username");
-            System.out.println("5. Change Password");
-            System.out.println("6. Logout");
+            System.out.println("4. Manage Deals");
+            System.out.println("5. Change Username");
+            System.out.println("6. Change Password");
+            System.out.println("7. Logout");
             System.out.print("Enter your choice: ");
-            choice = scanner.nextInt();
-
-            switch (choice) {
-                case 1:
-                    categoryController.manageCategories();
-                    break;
-                case 2:
-                    itemController.manageItems();
-                    break;
-                case 3:
-                    userController.manageUsers();
-                    break;
-                case 4:
-                    changeUsername();
-                    break;
-                case 5:
-                    changePassword();
-                    break;
-                case 6:
-                    System.out.println("Logout successful. Exiting the program.");
-                    System.exit(0);
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+            try {
+                choice = scanner.nextInt();
+                switch (choice) {
+                    case 1:
+                        categoryController.manageCategories();
+                        break;
+                    case 2:
+                        itemController.manageItems();
+                        break;
+                    case 3:
+                        userController.manageUsers();
+                        break;
+                    case 4:
+                        DealHandler.manageDeals();
+                        break;
+                    case 5:
+                        changeUsername();
+                        break;
+                    case 6:
+                        changePassword();
+                        break;
+                    case 7:
+                        System.out.println("Logout successful. Exiting the program.");
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Enter valid input");
+                displayAdminMenu();
             }
+
         } while (true);
     }
 
@@ -223,37 +226,46 @@ public class InventorySystem {
             System.out.println("\n====== Salesman Menu ======");
             System.out.println("1. Display Categories");
             System.out.println("2. Display Items");
-            System.out.println("3. Change Username");
-            System.out.println("4. Change Password");
-            System.out.println("5. Logout");
+            System.out.println("3. Display Deals");
+            System.out.println("4. Change Username");
+            System.out.println("5. Change Password");
+            System.out.println("6. Logout");
             System.out.print("Enter your choice: ");
-            choice = scanner.nextInt();
-
-            switch (choice) {
-                case 1:
-                    CategoryController.displayCategories();
-                    break;
-                case 2:
-                    displayItems();
-                    break;
-                case 3:
-                    changeUsername();
-                    break;
-                case 4:
-                    changePassword();
-                    break;
-                case 5:
-                    System.out.println("Logout successful. Exiting the program.");
-                    System.exit(0);
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+            try {
+                choice = scanner.nextInt();
+                switch (choice) {
+                    case 1:
+                        CategoryController.displayCategories();
+                        break;
+                    case 2:
+                        displayItems();
+                        break;
+                    case 3:
+                        DealHandler.displayDeals();
+                        break;
+                    case 4:
+                        changeUsername();
+                        break;
+                    case 5:
+                        changePassword();
+                        break;
+                    case 6:
+                        System.out.println("Logout successful. Exiting the program.");
+                        System.exit(0);
+                        break;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Enter valid input");
+                displaySalesmanMenu();
             }
         } while (true);
     }
 
 
-    private void changeUsername() {
+
+    public void changeUsername() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter your current password: ");
         String currentPassword = scanner.nextLine();
@@ -261,17 +273,21 @@ public class InventorySystem {
         if (currentUser.authenticate(currentUser.getUsername(), currentPassword, currentUserRole)) {
             System.out.print("Enter your new username: ");
             String newUsername = scanner.nextLine();
-            currentUser.setUsername(newUsername);
 
-            saveUserData();
-            System.out.println("Username changed successfully.");
+            // Check if the new username is unique
+            if (userController.isUsernameUnique(newUsername)) {
+                currentUser.setUsername(newUsername);
+                saveUserData();
+                System.out.println("Username changed successfully.");
+            } else {
+                System.out.println("Username already exists. Please choose a different one.");
+            }
         } else {
             System.out.println("Invalid password. Username not changed.");
         }
     }
 
-
-    private void changePassword() {
+    public void changePassword() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter your current password: ");
         String currentPassword = scanner.nextLine();
@@ -287,6 +303,7 @@ public class InventorySystem {
             System.out.println("Invalid password. Password not changed.");
         }
     }
+
 
 
     public static void displayItems() {

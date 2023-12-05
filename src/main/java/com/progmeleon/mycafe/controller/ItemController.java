@@ -1,12 +1,17 @@
 package com.progmeleon.mycafe.controller;
 
+import com.progmeleon.mycafe.config.DBConnector;
 import com.progmeleon.mycafe.model.Item;
 import com.progmeleon.mycafe.model.Category;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
 public class ItemController {
+
     private static List<Item> items;
     private static List<Category> categories;
 
@@ -27,31 +32,37 @@ public class ItemController {
             System.out.println("4. Display Items");
             System.out.println("5. Back to Admin Menu");
             System.out.print("Enter your choice: ");
-            choice = scanner.nextInt();
+            try {
+                choice = scanner.nextInt();
 
-            switch (choice) {
-                case 1:
-                    addItem();
-                    break;
-                case 2:
-                    deleteItem();
-                    break;
-                case 3:
-                    updateItem();
-                    break;
-                case 4:
-                    displayItems();
-                    break;
-                case 5:
-                    return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                switch (choice) {
+                    case 1:
+                        addItem();
+                        break;
+                    case 2:
+                        deleteItem();
+                        break;
+                    case 3:
+                        updateItem();
+                        break;
+                    case 4:
+                        displayItems();
+                        break;
+                    case 5:
+                        return;
+                    default:
+                        System.out.println("Invalid choice. Please try again.");
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                manageItems();
             }
+
         } while (true);
     }
 
     // Add item
-    private void addItem() {
+    public void addItem() {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter item name: ");
         String itemName = scanner.nextLine();
@@ -64,14 +75,55 @@ public class ItemController {
         int categoryId = getCategoryIDByName(itemCategoryName);
 
         if (categoryId != -1) {
-            Item newItem = new Item(itemName, itemPrice, categoryId);
-            items.add(newItem);
-            FileHandler.saveDataToFile(items, "items.ser");
-            System.out.println("Item added successfully.");
+            // Use SQL query to insert the new item
+            String insertQuery = "INSERT INTO item (itemName, itemPrice, categoryId) VALUES (?, ?, ?)";
+
+            try (Connection connection = DBConnector.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+
+                preparedStatement.setString(1, itemName);
+                preparedStatement.setDouble(2, itemPrice);
+                preparedStatement.setInt(3, categoryId);
+
+                int rowsAffected = preparedStatement.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    System.out.println("Item added successfully.");
+                } else {
+                    System.out.println("Failed to add item.");
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         } else {
             System.out.println("Category not found. Item not added.");
         }
     }
+
+    public static int getCategoryIDByName(String categoryName) {
+        // Use SQL query to select the category ID by name
+        String selectQuery = "SELECT id FROM category WHERE categoryName = ?";
+
+        try (Connection connection = DBConnector.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery)) {
+
+            preparedStatement.setString(1, categoryName);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return resultSet.getInt("id");
+            } else {
+                return -1; // Category not found
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
 
     // Delete item
     private void deleteItem() {
@@ -79,10 +131,25 @@ public class ItemController {
         System.out.print("Enter item name to delete: ");
         String itemName = scanner.nextLine();
 
-        items.removeIf(item -> item.getItemName().equalsIgnoreCase(itemName));
+        // Use SQL query to delete the item
+        String deleteQuery = "DELETE FROM item WHERE itemName = ?";
 
-        FileHandler.saveDataToFile(items, "items.ser");
-        System.out.println("Item deleted successfully.");
+        try (Connection connection = DBConnector.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery)) {
+
+            preparedStatement.setString(1, itemName);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Item deleted successfully.");
+            } else {
+                System.out.println("Item not found.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Update item
@@ -100,35 +167,72 @@ public class ItemController {
 
         int newCategoryId = getCategoryIDByName(newItemCategoryName);
 
-        for (Item item : items) {
-            if (item.getItemName().equalsIgnoreCase(oldItemName)) {
-                item.setItemName(newItemName);
-                item.setItemPrice(newItemPrice);
-                item.setCategoryId(newCategoryId);
-                FileHandler.saveDataToFile(items, "items.ser");
-                System.out.println("Item updated successfully.");
-                return;
-            }
-        }
+        // Use SQL query to update the item
+        String updateQuery = "UPDATE item SET itemName = ?, itemPrice = ?, categoryId = ? WHERE itemName = ?";
 
-        System.out.println("Item not found.");
+        try (Connection connection = DBConnector.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+
+            preparedStatement.setString(1, newItemName);
+            preparedStatement.setDouble(2, newItemPrice);
+            preparedStatement.setInt(3, newCategoryId);
+            preparedStatement.setString(4, oldItemName);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Item updated successfully.");
+            } else {
+                System.out.println("Item not found.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Display items
     private void displayItems() {
-        System.out.println("\n====== Items ======");
-        for (Item item : items) {
-            System.out.println(item);
+        // Use SQL query to select and display all items
+        String selectQuery = "SELECT * FROM item";
+
+        try (Connection connection = DBConnector.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(selectQuery)) {
+
+            System.out.println("\n====== Items ======");
+            while (resultSet.next()) {
+                System.out.println("Item ID: " + resultSet.getInt("id"));
+                System.out.println("Item Name: " + resultSet.getString("itemName"));
+                System.out.println("Item Price: " + resultSet.getDouble("itemPrice"));
+                // Add other item details as needed
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
+    // Display all items
     public static void displayAllItems() {
-        if (items.isEmpty()) {
-            System.out.println("No items available.");
-        } else {
-            for (Item item : items) {
-                System.out.println(item);
+        // Use SQL query to select and display all items
+        String selectQuery = "SELECT * FROM item";
+
+        try (Connection connection = DBConnector.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(selectQuery)) {
+
+            if (resultSet.next()) {
+                System.out.println("\n====== Items ======");
+                do {
+                    System.out.println("Item ID: " + resultSet.getInt("id")+" "+"Item Name: " + resultSet.getString("itemName")+" "+"Item Price: " + resultSet.getDouble("itemPrice"));
+                } while (resultSet.next());
+            } else {
+                System.out.println("No items available.");
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
@@ -154,13 +258,41 @@ public class ItemController {
         }
     }
 
-    // Get category ID by name
-    private static int getCategoryIDByName(String categoryName) {
-        for (Category category : categories) {
-            if (category instanceof Category && category.getCategoryName().equalsIgnoreCase(categoryName)) {
-                return category.getCategoryId();
+    public static Item findItemByName(String itemName) {
+        // Use SQL query to select item by name
+        String selectItemQuery = "SELECT * FROM item WHERE itemName = ?";
+
+        try (Connection connection = DBConnector.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(selectItemQuery)) {
+
+            preparedStatement.setString(1, itemName);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+//                    int itemId = resultSet.getInt("itemId");
+                    double itemPrice = resultSet.getDouble("itemPrice");
+                    int categoryId = resultSet.getInt("categoryId");
+
+                    // Create and return the Item object
+                    return new Item( itemName, itemPrice, categoryId);
+                }
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return -1; // Return -1 if the category is not found
+
+        return null; // Item not found
     }
+
+
+    // Get category ID by name
+//    private static int getCategoryIDByName(String categoryName) {
+//        for (Category category : categories) {
+//            if (category instanceof Category && category.getCategoryName().equalsIgnoreCase(categoryName)) {
+//                return category.getCategoryId();
+//            }
+//        }
+//        return -1; // Return -1 if the category is not found
+//    }
 }

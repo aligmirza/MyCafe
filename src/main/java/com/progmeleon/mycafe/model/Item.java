@@ -1,5 +1,9 @@
 package com.progmeleon.mycafe.model;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serializable;
 
 public class Item implements Serializable {
@@ -9,8 +13,15 @@ public class Item implements Serializable {
     private double itemPrice;
     private int categoryId;
 
-    public Item(String itemName, double itemPrice, int categoryId) {
+    public Item(@JsonProperty("itemname") String itemName,@JsonProperty("itemprice") double itemPrice, @JsonProperty("itemcategory") int categoryId) {
         this.itemId = nextItemId++;
+        this.itemName = itemName;
+        this.itemPrice = itemPrice;
+        this.categoryId = categoryId;
+    }
+
+    public Item(int id, String itemName, double itemPrice, int categoryId) {
+        this.itemId = id;
         this.itemName = itemName;
         this.itemPrice = itemPrice;
         this.categoryId = categoryId;
@@ -52,6 +63,7 @@ public class Item implements Serializable {
         this.categoryId = categoryId;
     }
 
+
     @Override
     public String toString() {
         return "Item [ID: " + itemId + ", Name: " + itemName + ", Price: PKR" + itemPrice + ", Category ID: " + categoryId + "]";
@@ -60,6 +72,14 @@ public class Item implements Serializable {
     // Check if the item already exists
     public boolean equalsIgnoreCase(String itemNameToCompare, int categoryIdToCompare) {
         return this.itemName.equalsIgnoreCase(itemNameToCompare) && this.categoryId == categoryIdToCompare;
+    }
+
+    public double getPrice() {
+        return itemPrice;
+    }
+
+    public String getName() {
+        return itemName;
     }
 
 //    public Category getCategoryName() {

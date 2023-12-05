@@ -1,75 +1,38 @@
 package com.progmeleon.mycafe.model;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Order implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class Order {
+    private static int lastOrderId = 0;
     private int orderId;
-    private LocalDateTime orderTime;
-    private User user;
+    private User customer;
     private List<Item> items;
-    private OrderStatus orderStatus;
 
-    public Order(int orderId, User user, List<Item> items, OrderStatus orderStatus) {
-        this.orderId = orderId;
-        this.orderTime = LocalDateTime.now();
-        this.user = user;
-        this.items = items;
-        this.orderStatus = orderStatus;
+    public Order(User customer, List<Item> items) {
+        this.orderId = ++lastOrderId;
+        this.customer = customer;
+        this.items = new ArrayList<>(items);
     }
 
     public int getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-    }
-
-    public LocalDateTime getOrderTime() {
-        return orderTime;
-    }
-
-    public void setOrderTime(LocalDateTime orderTime) {
-        this.orderTime = orderTime;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public User getCustomer() {
+        return customer;
     }
 
     public List<Item> getItems() {
-        return items;
-    }
-
-    public void setItems(List<Item> items) {
-        this.items = items;
-    }
-
-    public OrderStatus getOrderStatus() {
-        return orderStatus;
-    }
-
-    public void setOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
+        return new ArrayList<>(items);
     }
 
     @Override
     public String toString() {
         return "Order{" +
                 "orderId=" + orderId +
-                ", orderTime=" + orderTime +
-                ", user=" + user +
+                ", customer=" + customer +
                 ", items=" + items +
-                ", orderStatus=" + orderStatus +
                 '}';
     }
 }

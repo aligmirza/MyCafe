@@ -1,11 +1,14 @@
 package com.progmeleon.mycafe.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 public class User implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+    public static int lastId = 0;
 
     private int id;
     private String name;
@@ -13,17 +16,31 @@ public class User implements Serializable {
     private String password;
     private UserRole role;
 
-    public User(String name, String username, String password, UserRole role) {
+    public User(@JsonProperty("name") String name,@JsonProperty("username") String username, @JsonProperty("password") String password, @JsonProperty("role") UserRole role) {
+        this.id = ++lastId;
         this.name = name;
         this.username = username;
         this.password = password;
         this.role = role;
     }
 
-    public User(String name, String username, String password) {
+    @JsonIgnore
+    public User(@JsonProperty("name") String name,@JsonProperty("username") String username, @JsonProperty("password") String password) {
         this.name = name;
         this.username = username;
         this.password = password;
+    }
+
+    public User(String customerName) {
+        this.name = customerName;
+    }
+
+    public User(int userId, String name, String username, String password, UserRole userRole) {
+        this.id = userId;
+        this.name = name;
+        this.username = username;
+        this.password = password;
+        this.role = userRole;
     }
 
     public int getId() {
@@ -84,5 +101,17 @@ public class User implements Serializable {
     // Check if the provided username is the same as the current username
     public boolean hasSameUsername(String usernameToCompare) {
         return this.username.equalsIgnoreCase(usernameToCompare);
+    }
+
+    public static void updateLastId(int id) {
+        if (id > lastId) {
+            lastId = id;
+        }
+    }
+
+    public static void setLastId(List<User> users) {
+        for (User user : users) {
+            updateLastId(user.getId());
+        }
     }
 }

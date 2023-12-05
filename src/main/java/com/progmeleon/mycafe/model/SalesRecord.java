@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 public class SalesRecord implements Serializable {
+    // section SalesRecord
     private static final long serialVersionUID = 1L;
 
     private LocalDate date;
