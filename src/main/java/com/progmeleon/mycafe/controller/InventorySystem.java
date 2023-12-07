@@ -6,6 +6,7 @@ import com.progmeleon.mycafe.model.*;
 import com.progmeleon.mycafe.ui.Components;
 import com.progmeleon.mycafe.ui.SideBar;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextInputDialog;
 
 
 import java.io.*;
@@ -38,16 +39,11 @@ public class InventorySystem {
 
     private CategoryController categoryController;
     private ItemController itemController;
-    private UserController userController;
+    private static UserController userController;
 
     public InventorySystem() {
-//        categories = new ArrayList<>(ConfigureExistingData.categories);
-//        items = new ArrayList<>(ConfigureExistingData.items);
-//        users = new ArrayList<>(ConfigureExistingData.users);
         currentUser = null;
         currentUserRole = null;
-
-        // Move the initialization of controllers after loading existing data
 
         categoryController = new CategoryController(categories);
         itemController = new ItemController(items, categories);
@@ -56,11 +52,8 @@ public class InventorySystem {
 
 
     public void start() {
-//        authenticateUser();
         displayMenu();
     }
-
-
 
     public void saveData() {
         FileHandler.saveDataToFile( categories,CATEGORIES_FILE_PATH);
@@ -89,8 +82,7 @@ public class InventorySystem {
             System.exit(0);
         }
     }
-
-    private void saveUserData() {
+    private static void saveUserData() {
         try (ObjectOutputStream userOutputStream = new ObjectOutputStream(new FileOutputStream("users.ser"))) {
             userOutputStream.writeObject(users);
             System.out.println("User data saved successfully.");
@@ -98,23 +90,18 @@ public class InventorySystem {
             e.printStackTrace();
         }
     }
-
     public static void authenticateUser(String username, String password) {
-        Scanner scanner = new Scanner(System.in);
-
         boolean isAuthenticated = false;
-
 
         String selectQuery = "SELECT users.*, role.roleName " +
                 "FROM users " +
                 "JOIN role ON users.roleId = role.id " +
                 "WHERE username = ? AND password = ?";
-
         try {
             Connection connection = DBConnector.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);
             preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);  // Note: Replace this with hashed password in real-world scenarios
+            preparedStatement.setString(2, password);
 
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -122,7 +109,7 @@ public class InventorySystem {
                 currentUser = new User(
                         resultSet.getString("name"),
                         resultSet.getString("username"),
-                        resultSet.getString("password"),  // Note: Replace this with hashed password in real-world scenarios
+                        resultSet.getString("password"),
                         UserRole.valueOf(resultSet.getString("roleName").toUpperCase())
                 );
 
@@ -141,22 +128,14 @@ public class InventorySystem {
         }
     }
 
-
-
-
-
-
-    // Check if the provided user credentials are valid
     private boolean isValidUser(User user) {
         return users.stream().anyMatch(u -> u.authenticate(user.getUsername(), user.getPassword(), null));
     }
 
-    // Get the role of the current user
     private UserRole getCurrentUserRole() {
         return currentUserRole;
     }
 
-    // Get the role of a user by username
     private UserRole getUserRoleByUsername(String username) {
         for (User user : users) {
             if (user.getUsername().equals(username)) {
@@ -261,45 +240,61 @@ public class InventorySystem {
         } while (true);
     }
 
+    public static void changeUsername() {
+        TextInputDialog currentPasswordDialog = new TextInputDialog();
+        currentPasswordDialog.setHeaderText(null);
+        currentPasswordDialog.setContentText("Enter your current password:");
+        currentPasswordDialog.setTitle("Change Username");
 
+        currentPasswordDialog.showAndWait().ifPresent(currentPassword -> {
+            if (currentUser.authenticate(currentUser.getUsername(), currentPassword, currentUserRole)) {
+                TextInputDialog newUsernameDialog = new TextInputDialog();
+                newUsernameDialog.setHeaderText(null);
+                newUsernameDialog.setContentText("Enter your new username:");
+                newUsernameDialog.setTitle("Change Username");
 
-    public void changeUsername() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter your current password: ");
-        String currentPassword = scanner.nextLine();
+                newUsernameDialog.showAndWait().ifPresent(newUsername -> {
+                    if (userController.isUsernameUnique(newUsername)) {
+                        currentUser.setUsername(newUsername);
 
-        if (currentUser.authenticate(currentUser.getUsername(), currentPassword, currentUserRole)) {
-            System.out.print("Enter your new username: ");
-            String newUsername = scanner.nextLine();
+                        saveUserData();
 
-            // Check if the new username is unique
-            if (userController.isUsernameUnique(newUsername)) {
-                currentUser.setUsername(newUsername);
-                saveUserData();
-                System.out.println("Username changed successfully.");
+                        showAlert("Username changed successfully.", Alert.AlertType.INFORMATION);
+                    } else {
+                        showAlert("Username already exists. Please choose a different one.", Alert.AlertType.ERROR);
+                    }
+                });
             } else {
-                System.out.println("Username already exists. Please choose a different one.");
+                showAlert("Invalid password. Username not changed.", Alert.AlertType.ERROR);
             }
-        } else {
-            System.out.println("Invalid password. Username not changed.");
-        }
+        });
     }
 
-    public void changePassword() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter your current password: ");
-        String currentPassword = scanner.nextLine();
+    public static void changePassword() {
+        TextInputDialog currentPasswordDialog = new TextInputDialog();
+        currentPasswordDialog.setHeaderText(null);
+        currentPasswordDialog.setContentText("Enter your current password:");
+        currentPasswordDialog.setTitle("Change Password");
 
-        if (currentUser.authenticate(currentUser.getUsername(), currentPassword, currentUserRole)) {
-            System.out.print("Enter your new password: ");
-            String newPassword = scanner.nextLine();
-            currentUser.setPassword(newPassword);
+        currentPasswordDialog.showAndWait().ifPresent(currentPassword -> {
+            if (currentUser.authenticate(currentUser.getUsername(), currentPassword, currentUserRole)) {
+                TextInputDialog newPasswordDialog = new TextInputDialog();
+                newPasswordDialog.setHeaderText(null);
+                newPasswordDialog.setContentText("Enter your new password:");
+                newPasswordDialog.setTitle("Change Password");
 
-            saveUserData();
-            System.out.println("Password changed successfully.");
-        } else {
-            System.out.println("Invalid password. Password not changed.");
-        }
+                newPasswordDialog.showAndWait().ifPresent(newPassword -> {
+                    currentUser.setPassword(newPassword);
+
+                    saveUserData();
+
+                    showAlert("Password changed successfully.", Alert.AlertType.INFORMATION);
+                });
+            } else {
+
+                showAlert("Invalid password. Password not changed.", Alert.AlertType.ERROR);
+            }
+        });
     }
 
 

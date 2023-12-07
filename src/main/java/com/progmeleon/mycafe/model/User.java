@@ -93,11 +93,6 @@ public class User implements Serializable {
         this.username = newUsername;
     }
 
-    // Change password
-    public void changePassword(String newPassword) {
-        this.password = newPassword;
-    }
-
     // Check if the provided username is the same as the current username
     public boolean hasSameUsername(String usernameToCompare) {
         return this.username.equalsIgnoreCase(usernameToCompare);

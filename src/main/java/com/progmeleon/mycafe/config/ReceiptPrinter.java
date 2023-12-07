@@ -4,33 +4,33 @@ import java.awt.*;
 import java.awt.print.*;
 
 public class ReceiptPrinter implements Printable {
-    private String receiptContent;
 
-    public ReceiptPrinter(String receiptContent) {
-        this.receiptContent = receiptContent;
+    private StringBuilder receipt;
+
+    public ReceiptPrinter(StringBuilder receipt) {
+        this.receipt = receipt;
     }
 
     @Override
-    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) {
+    public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException {
         if (pageIndex > 0) {
-            return Printable.NO_SUCH_PAGE;
+            return NO_SUCH_PAGE;
         }
 
-        Graphics2D g2d = (Graphics2D) graphics;
-        g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.translate(pf.getImageableX(), pf.getImageableY());
 
-        Font font = new Font("Courier New", Font.PLAIN, 12);
-        graphics.setFont(font);
+        Font font = new Font("Arial", Font.PLAIN, 12);
+        g2d.setFont(font);
 
-        String[] lines = receiptContent.split("\n");
-        int y = 20; // Starting y-coordinate
+        int lineHeight = g2d.getFontMetrics().getHeight();
+        int x = 10; // starting X position
+        int y = 10; // starting Y position
 
-        for (String line : lines) {
-            graphics.drawString(line, 10, y);
-            y += 15; // Adjust for the next line
-        }
+        // Print receipt details
+        g2d.drawString(receipt.toString(), x, y);
 
-        return Printable.PAGE_EXISTS;
+        return PAGE_EXISTS;
     }
 
     public void printReceipt() {
@@ -45,9 +45,4 @@ public class ReceiptPrinter implements Printable {
             }
         }
     }
-
-//    public static void main(String[] args) {
-//        // Example receipt content
-//
-//    }
 }

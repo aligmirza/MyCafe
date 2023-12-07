@@ -1,10 +1,12 @@
 package com.progmeleon.mycafe.ui;
 
 import com.progmeleon.mycafe.config.DBConnector;
+import com.progmeleon.mycafe.config.ReceiptPrinter;
 import com.progmeleon.mycafe.model.Item;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Background;
@@ -33,18 +35,25 @@ public class Menu {
     private static Label totalLabel = new Label("Total: PKR 0.0");
 
     public static void showMenuItems() {
-        HBox mainLayout = new HBox(20);
+        VBox mainLayout = new VBox(20);
 
-        // Create an HBox for menu items
-        VBox manageItemsMenu = new VBox(10);
+        // Create a ScrollPane for menu items
+        ScrollPane manageItemsScrollPane = new ScrollPane();
+        manageItemsScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+
+        HBox manageItemsMenu = new HBox(05);
         itemList.setAll(fetchItemsFromDatabase());
 
         for (Item item : itemList) {
             HBox menuItemHBox = new HBox();
             VBox menuItemBox = menuItems(item.getItemName(), item.getItemPrice(), item);
+            menuItemBox.setPrefHeight(200);
             menuItemHBox.getChildren().add(menuItemBox);
             manageItemsMenu.getChildren().add(menuItemHBox);
         }
+
+        // Set the content of the ScrollPane to the HBox
+        manageItemsScrollPane.setContent(manageItemsMenu);
 
         // Create VBox for TableView
         VBox tableViewVBox = new VBox();
@@ -64,12 +73,13 @@ public class Menu {
         Button checkoutButton = new Button("Generate Bill");
         checkoutButton.setOnAction(e -> printReceipt());
 
-        tableViewVBox.getChildren().addAll(tableView, checkoutButton,totalLabel);
+        tableViewVBox.getChildren().addAll(tableView, checkoutButton, totalLabel);
 
+        mainLayout.getChildren().addAll(manageItemsScrollPane, tableViewVBox);
 
-        mainLayout.getChildren().addAll(manageItemsMenu, tableViewVBox);
         ((BorderPane) primaryStage.getScene().getRoot()).setCenter(mainLayout);
     }
+
 
     public static List<Item> fetchItemsFromDatabase() {
         List<Item> items = new ArrayList<>();
@@ -98,7 +108,7 @@ public class Menu {
         VBox menuItemBox = new VBox(10);
         menuItemBox.setMaxWidth(200);
 
-        menuItemBox.setStyle("-fx-border-color: red");
+        // menuItemBox.setStyle("-fx-border-color: red");
         menuItemBox.setPadding(new Insets(20, 10, 10, 20));
         menuItemBox.setBackground(Background.fill(Color.WHITE));
         menuItemBox.setPadding(new Insets(10));
@@ -170,7 +180,8 @@ public class Menu {
         }
         receipt.append("\nTotal: PKR ").append(totalLabel.getText().substring(8));
 
-        // You can modify this part to print or display the receipt as needed
-        System.out.println(receipt.toString());
+        ReceiptPrinter receiptPrinter = new ReceiptPrinter(receipt);
+        receiptPrinter.printReceipt();
     }
+
 }

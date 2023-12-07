@@ -45,6 +45,7 @@ public class Components extends Application {
         Scene scene = new Scene(borderPane, 900, 600, Color.WHITE);
 
         primaryStage.setTitle("My Cafe");
+        primaryStage.getIcons().add(new Image("file:E:\\2nd Semester\\Java opp\\Finalproject\\src\\img.png"));
         primaryStage.setScene(scene);
         primaryStage.show();
     }

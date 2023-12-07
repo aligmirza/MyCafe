@@ -7,6 +7,7 @@ import com.progmeleon.mycafe.controller.ItemController;
 import com.progmeleon.mycafe.controller.ItemController.*;
 import com.progmeleon.mycafe.model.Category;
 import com.progmeleon.mycafe.model.Item;
+import com.progmeleon.mycafe.model.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -27,14 +28,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.progmeleon.mycafe.controller.CategoryController.categories;
+//import static com.progmeleon.mycafe.controller.InventorySystem.currentUser;
+//import static com.progmeleon.mycafe.controller.InventorySystem.currentUser;
 import static com.progmeleon.mycafe.controller.ItemController.*;
 import static com.progmeleon.mycafe.ui.Components.primaryStage;
 import static com.progmeleon.mycafe.ui.Components.showAlert;
 import static com.progmeleon.mycafe.ui.SideBar.showNextScene;
 
 public class UserRoleInterface {
+    static User currentUser;
 
     public static void showManageCategories() {
         // Create VBox for "Manage Categories" buttons
@@ -74,6 +79,7 @@ public class UserRoleInterface {
 
         ((BorderPane) primaryStage.getScene().getRoot()).setCenter(manageCategoriesMenu);
     }
+
     private static void addCategory() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Add Category");
@@ -304,7 +310,7 @@ public class UserRoleInterface {
             ItemController.addItem(itemNameField.getText(), Double.parseDouble(itemPriceField.getText()), categoryComboBox.getSelectionModel().getSelectedItem().toString());
 
             // Update the ObservableList to reflect the changes
-            itemList.add(new Item(itemNameField.getText(), Double.parseDouble(itemPriceField.getText()), Integer.parseInt(categoryComboBox.getSelectionModel().getSelectedItem().toString()) ));
+            itemList.add(new Item(itemNameField.getText(), Double.parseDouble(itemPriceField.getText()), Integer.parseInt(categoryComboBox.getSelectionModel().getSelectedItem().toString())));
 
             // Clear the form fields after adding the item
             itemNameField.clear();
@@ -379,6 +385,7 @@ public class UserRoleInterface {
             showAlert("Item not found.", Alert.AlertType.ERROR);
         });
     }
+
     // Display items
     private static void displayItems() {
 
@@ -398,4 +405,40 @@ public class UserRoleInterface {
         itemsStage.show();
     }
 
+//    static void handleChangePassword() {
+//        TextInputDialog oldPasswordDialog = new TextInputDialog();
+////        Password passwordDialog = new PasswordDialog();
+//        oldPasswordDialog.setHeaderText(null);
+//        oldPasswordDialog.setTitle("Change Password");
+//        oldPasswordDialog.setContentText("Enter your old password:");
+//
+//        Optional<String> oldPasswordResult = oldPasswordDialog.showAndWait();
+//
+//        oldPasswordResult.ifPresent(oldPassword -> {
+//            if (checkOldPassword(oldPassword)) {
+//                oldPasswordDialog.close();
+//                TextInputDialog newPasswordDialog = new TextInputDialog();
+//                newPasswordDialog.setHeaderText(null);
+//                newPasswordDialog.setTitle("Change Password");
+//                newPasswordDialog.setContentText("Enter your new password:");
+//
+//                newPasswordDialog.showAndWait().ifPresent(newPassword -> {
+//                    showAlert("Password changed successfully.", Alert.AlertType.INFORMATION);
+//                });
+//            } else {
+//                showAlert("Incorrect old password. Password not changed.", Alert.AlertType.ERROR);
+//            }
+//        });
+//    }
+//
+//    private static boolean checkOldPassword(String oldPassword) {
+//        // Assuming currentUser is the currently logged-in user.
+//        User currentUser = InventorySystem.getCurrentUser();
+//
+//        if (currentUser != null && currentUser.getPassword().equals(oldPassword)) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+//    }
 }
