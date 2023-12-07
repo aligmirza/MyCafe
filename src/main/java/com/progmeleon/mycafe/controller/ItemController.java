@@ -3,6 +3,18 @@ package com.progmeleon.mycafe.controller;
 import com.progmeleon.mycafe.config.DBConnector;
 import com.progmeleon.mycafe.model.Item;
 import com.progmeleon.mycafe.model.Category;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.stage.Stage;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -12,7 +24,7 @@ import java.util.Scanner;
 
 public class ItemController {
 
-    private static List<Item> items;
+    public static List<Item> items;
     private static List<Category> categories;
 
     public ItemController(List<Item> items, List<Category> categories) {
@@ -37,7 +49,7 @@ public class ItemController {
 
                 switch (choice) {
                     case 1:
-                        addItem();
+//                        addItem();
                         break;
                     case 2:
                         deleteItem();
@@ -62,15 +74,15 @@ public class ItemController {
     }
 
     // Add item
-    public void addItem() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter item name: ");
-        String itemName = scanner.nextLine();
-        System.out.print("Enter item price: ");
-        double itemPrice = scanner.nextDouble();
-        scanner.nextLine(); // Consume the newline character
-        System.out.print("Enter item category: ");
-        String itemCategoryName = scanner.nextLine();
+    public static void addItem(String itemName, double itemPrice, String itemCategoryName) {
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.print("Enter item name: ");
+//        String itemName = scanner.nextLine();
+//        System.out.print("Enter item price: ");
+//        double itemPrice = scanner.nextDouble();
+//        scanner.nextLine(); // Consume the newline character
+//        System.out.print("Enter item category: ");
+//        String itemCategoryName = scanner.nextLine();
 
         int categoryId = getCategoryIDByName(itemCategoryName);
 
@@ -286,13 +298,82 @@ public class ItemController {
     }
 
 
-    // Get category ID by name
-//    private static int getCategoryIDByName(String categoryName) {
-//        for (Category category : categories) {
-//            if (category instanceof Category && category.getCategoryName().equalsIgnoreCase(categoryName)) {
-//                return category.getCategoryId();
-//            }
-//        }
-//        return -1; // Return -1 if the category is not found
+//    public static void main(String[] args) {
+//        launch();
 //    }
+//
+//    @Override
+//    public void start(Stage primaryStage) {
+//        AnchorPane root = new AnchorPane();
+//        root.getStyleClass().addAll("card", "shadow");
+//
+//        VBox vBox = new VBox();
+//        vBox.setPrefSize(230, 180);
+//        vBox.setLayoutX(65);
+//        vBox.setLayoutY(-10);
+//
+//        String[] productNames = {"Spaghetti", "Pizza", "Burger"};
+//        double[] productPrices = {10.0, 15.0, 5.0};
+//        String[] imagePaths = {"1.png", "1.png", "1.png"};
+//
+//        for (int i = 0; i < productNames.length; i++) {
+//            showItems(vBox, productNames[i], productPrices[i], imagePaths[i]);
+//        }
+//
+//        root.getChildren().add(vBox);
+//
+//        Scene scene = new Scene(root);
+//        scene.getStylesheets().add("cardDesign.css");
+//
+//        primaryStage.setScene(scene);
+//        primaryStage.show();
+//    }
+//
+//    private void showItems(VBox parent, String productName, double productPrice, String imagePath) {
+//        HBox headerHBox = new HBox();
+//        headerHBox.setPrefSize(230, 29);
+//
+//        Label prodNameLabel = new Label(productName);
+//        prodNameLabel.setPrefSize(151, 21);
+//        prodNameLabel.setFont(new Font(15));
+//        HBox.setMargin(prodNameLabel, new Insets(0, 0, 0, 25));
+//
+//        Label prodPriceLabel = new Label(String.format("$%.2f", productPrice));
+//        prodPriceLabel.setPrefSize(86, 21);
+//        prodPriceLabel.setFont(new Font(15));
+//        HBox.setMargin(prodPriceLabel, new Insets(0, 25, 0, 0));
+//
+//        headerHBox.getChildren().addAll(prodNameLabel, prodPriceLabel);
+//
+//        AnchorPane imageAnchorPane = new AnchorPane();
+//        imageAnchorPane.setPrefSize(230, 101);
+//
+//        ImageView prodImageView = new ImageView(new Image(imagePath));
+//        prodImageView.setFitHeight(94);
+//        prodImageView.setFitWidth(190);
+//        prodImageView.setLayoutX(20);
+//        prodImageView.setLayoutY(4);
+//        imageAnchorPane.getChildren().add(prodImageView);
+//
+//        HBox buttonHBox = new HBox();
+//        buttonHBox.setPrefSize(230, 48);
+//
+//        Spinner<Integer> prodSpinner = new Spinner<>();
+//        prodSpinner.setPrefSize(100, 25);
+//        HBox.setMargin(prodSpinner, new Insets(0, 10, 0, 0));
+//
+//        Button prodAddBtn = new Button("Add");
+//        prodAddBtn.setPrefSize(81, 25);
+//        prodAddBtn.getStyleClass().add("btn");
+//
+//        buttonHBox.getChildren().addAll(prodSpinner, prodAddBtn);
+//
+//        VBox productVBox = new VBox();
+//        productVBox.getChildren().addAll(headerHBox, imageAnchorPane, buttonHBox);
+//
+//        parent.getChildren().add(productVBox);
+//    }
+
+
+
 }

@@ -1,5 +1,6 @@
 package com.progmeleon.mycafe.ui;
 
+import com.progmeleon.mycafe.controller.CategoryController;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -10,9 +11,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
-import java.io.IOException;
-
-import static com.progmeleon.mycafe.ui.Components.*;
+import static com.progmeleon.mycafe.ui.Components.primaryStage;
+import static com.progmeleon.mycafe.ui.Menu.showMenuItems;
+import static com.progmeleon.mycafe.ui.UserRoleInterface.showManageItems;
 
 public class SideBar {
 
@@ -39,31 +40,36 @@ public class SideBar {
         double buttonWidth = 180;
         double buttonHeight = 30;
 
-        Button manageCategoriesButton = new Button("1. Manage Categories");
+        Button showItemButton = new Button("1. Inventory");
+        showItemButton.setMinSize(buttonWidth,buttonHeight);
+        showItemButton.setStyle("-fx-cursor: hand;");
+
+        Button manageCategoriesButton = new Button("2. Manage Categories");
         manageCategoriesButton.setMinSize(buttonWidth,buttonHeight);
         manageCategoriesButton.setStyle("-fx-cursor: hand;");
 
-        Button manageItemsButton = new Button("2. Manage Items");
+        Button manageItemsButton = new Button("3. Manage Items");
         manageItemsButton.setMinSize(buttonWidth,buttonHeight);
         manageItemsButton.setStyle("-fx-cursor: hand;");
 
-        Button manageUsersButton = new Button("3. Manage Users");
+        Button manageUsersButton = new Button("4. Manage Users");
         manageUsersButton.setMinSize(buttonWidth,buttonHeight);
         manageUsersButton.setStyle("-fx-cursor: hand;");
 
-        Button changeUsernameButton = new Button("4. Change Username");
+        Button changeUsernameButton = new Button("5. Change Username");
         changeUsernameButton.setMinSize(buttonWidth,buttonHeight);
         changeUsernameButton.setStyle("-fx-cursor: hand;");
 
-        Button changePasswordButton = new Button("5. Change Password");
+        Button changePasswordButton = new Button("6. Change Password");
         changePasswordButton.setMinSize(buttonWidth,buttonHeight);
         changePasswordButton.setStyle("-fx-cursor: hand;");
 
-        Button logoutButton = new Button("6. Logout");
+        Button logoutButton = new Button("7. Logout");
         logoutButton.setMinSize(buttonWidth,buttonHeight);
         logoutButton.setStyle("-fx-cursor: hand;");
 
         adminMenu.getChildren().addAll(
+                showItemButton,
                 manageCategoriesButton,
                 manageItemsButton,
                 manageUsersButton,
@@ -72,13 +78,14 @@ public class SideBar {
                 logoutButton
         );
 
-        manageCategoriesButton.setOnAction(e -> showManageCategories());
+        manageCategoriesButton.setOnAction(e -> CategoryController.displayCategories());
         manageItemsButton.setOnAction(e -> showManageItems());
+        showItemButton.setOnAction(e -> Menu.showMenuItems());
 
 
         bpane.setLeft(adminMenu);
 
         Scene nextScene = new Scene(bpane, 900, 600);
-//        primaryStage.setScene(nextScene);
+        primaryStage.setScene(nextScene);
     }
 }

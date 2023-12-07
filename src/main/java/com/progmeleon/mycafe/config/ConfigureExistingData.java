@@ -29,6 +29,9 @@ public class ConfigureExistingData {
         items = new ArrayList<>();
         users = new ArrayList<>();
         deals = new ArrayList<>();
+        loadCategories();
+
+
 
         // Use ExecutorService to run tasks concurrently
         ExecutorService executorService = Executors.newFixedThreadPool(4);

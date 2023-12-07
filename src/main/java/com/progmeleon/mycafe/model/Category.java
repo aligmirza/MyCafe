@@ -25,6 +25,10 @@ public class Category implements Serializable {
         this.categoryName = categoryName;
     }
 
+    public Category() {
+
+    }
+
     public int getCategoryId() {
         return categoryId;
     }

@@ -7,12 +7,12 @@ public class Order {
     private static int lastOrderId = 0;
     private int orderId;
     private User customer;
-    private List<Item> items;
+    private List<OrderItem> items;
 
-    public Order(User customer, List<Item> items) {
+    public Order(User customer) {
         this.orderId = ++lastOrderId;
         this.customer = customer;
-        this.items = new ArrayList<>(items);
+        this.items = new ArrayList<>();
     }
 
     public int getOrderId() {
@@ -23,8 +23,13 @@ public class Order {
         return customer;
     }
 
-    public List<Item> getItems() {
+    public List<OrderItem> getItems() {
         return new ArrayList<>(items);
+    }
+
+    public void addItem(Item item, int quantity) {
+        OrderItem orderItem = new OrderItem(item, quantity);
+        items.add(orderItem);
     }
 
     @Override
@@ -36,3 +41,4 @@ public class Order {
                 '}';
     }
 }
+

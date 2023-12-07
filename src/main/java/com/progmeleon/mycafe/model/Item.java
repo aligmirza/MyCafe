@@ -1,7 +1,5 @@
 package com.progmeleon.mycafe.model;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
@@ -25,6 +23,15 @@ public class Item implements Serializable {
         this.itemName = itemName;
         this.itemPrice = itemPrice;
         this.categoryId = categoryId;
+    }
+
+    public Item(String itemName, double itemPrice) {
+        this.itemName = itemName;
+        this.itemPrice = itemPrice;
+    }
+
+    public Item() {
+
     }
 
     public int getItemId() {

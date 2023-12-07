@@ -3,6 +3,8 @@ package com.progmeleon.mycafe.controller;
 import com.progmeleon.mycafe.config.ConfigureExistingData;
 import com.progmeleon.mycafe.config.DBConnector;
 import com.progmeleon.mycafe.model.*;
+import com.progmeleon.mycafe.ui.Components;
+import com.progmeleon.mycafe.ui.SideBar;
 
 
 import java.io.*;
@@ -135,7 +137,9 @@ public class InventorySystem {
 
                     currentUserRole = currentUser.getRole();
                     System.out.println("Login successful. Welcome, " + currentUser.getName() + "!");
+                    SideBar.showNextScene();
                     isAuthenticated = true;
+
                 } else {
                     System.out.println("Invalid credentials. Please try again.");
                 }
@@ -143,6 +147,8 @@ public class InventorySystem {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+
+
 
         } while (!isAuthenticated);
     }
