@@ -98,8 +98,15 @@ public class Components extends Application {
         layout.add(password, 2, 1);
         layout.setAlignment(Pos.CENTER);
 
-        Button register = createButton("Forgot Password");
-        Button loginbutton = createButton("Login");
+//        Button register = createButton("Forgot Password");
+        Button register = new Button("Already Have An Account? Login");
+        register.setFont(new Font("Arial",15));
+        register.setStyle("-fx-text-fill: black; -fx-border-color: transparent; -fx-cursor: hand; -fx-background-color: transparent");
+//        register.setUnderline(true);
+//        register.setOnAction(e->{
+//            displayLoginScene(stage,userManager);
+        Button loginbutton = new Button("Login");
+        loginbutton.setStyle("-fx-cursor: hand");
         loginbutton.setOnAction(e -> InventorySystem.authenticateUser(username.getText(), password.getText()));
 
         layout.add(register, 2, 2);
@@ -115,13 +122,13 @@ public class Components extends Application {
         return label;
     }
 
-    private Button createButton(String text) {
-        Button button = new Button(text);
-        button.setFont(new Font("Arial", 15));
-        button.setStyle("-fx-text-fill: black; -fx-border-color: rgba(116,55,55,0); -fx-cursor: hand; -fx-background-color: transparent");
-        button.setUnderline(true);
-        return button;
-    }
+//    private Button createButton(String text) {
+//        Button button = new Button(text);
+//        button.setFont(new Font("Arial", 15));
+//        button.setStyle("-fx-text-fill: black; -fx-border-color: rgba(116,55,55,0); -fx-cursor: hand; -fx-background-color: transparent");
+//        button.setUnderline(true);
+//        return button;
+//    }
 
 
     public static void showAlert(String message, Alert.AlertType alertType) {

@@ -89,9 +89,5 @@ public class Item implements Serializable {
         return itemName;
     }
 
-//    public Category getCategoryName() {
-//
-//        return null;
-//    }
 }
 

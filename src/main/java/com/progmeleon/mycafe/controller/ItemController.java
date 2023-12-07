@@ -75,14 +75,7 @@ public class ItemController {
 
     // Add item
     public static void addItem(String itemName, double itemPrice, String itemCategoryName) {
-//        Scanner scanner = new Scanner(System.in);
-//        System.out.print("Enter item name: ");
-//        String itemName = scanner.nextLine();
-//        System.out.print("Enter item price: ");
-//        double itemPrice = scanner.nextDouble();
-//        scanner.nextLine(); // Consume the newline character
-//        System.out.print("Enter item category: ");
-//        String itemCategoryName = scanner.nextLine();
+
 
         int categoryId = getCategoryIDByName(itemCategoryName);
 

@@ -5,6 +5,7 @@ import com.progmeleon.mycafe.config.DBConnector;
 import com.progmeleon.mycafe.model.*;
 import com.progmeleon.mycafe.ui.Components;
 import com.progmeleon.mycafe.ui.SideBar;
+import javafx.scene.control.Alert;
 
 
 import java.io.*;
@@ -19,6 +20,7 @@ import static com.progmeleon.mycafe.controller.ItemController.displayAllItems;
 //import static com.progmeleon.mycafe.controller.ItemController.displayItemsByCategory;
 import static com.progmeleon.mycafe.config.ConfigureExistingData.*;
 import static com.progmeleon.mycafe.controller.ItemController.displayItemsByCategory;
+import static com.progmeleon.mycafe.ui.Components.showAlert;
 
 
 public class InventorySystem {
@@ -88,12 +90,6 @@ public class InventorySystem {
         }
     }
 
-    // The rest of your code remains unchanged...
-
-
-
-
-
     private void saveUserData() {
         try (ObjectOutputStream userOutputStream = new ObjectOutputStream(new FileOutputStream("users.ser"))) {
             userOutputStream.writeObject(users);
@@ -108,50 +104,46 @@ public class InventorySystem {
 
         boolean isAuthenticated = false;
 
-        do {
-//            System.out.print("Enter your username: ");
-//            String username = scanner.nextLine();
-//            System.out.print("Enter your password: ");
-//            String password = scanner.nextLine();
 
-            String selectQuery = "SELECT users.*, role.roleName " +
-                    "FROM users " +
-                    "JOIN role ON users.roleId = role.id " +
-                    "WHERE username = ? AND password = ?";
+        String selectQuery = "SELECT users.*, role.roleName " +
+                "FROM users " +
+                "JOIN role ON users.roleId = role.id " +
+                "WHERE username = ? AND password = ?";
 
-            try {
-                Connection connection = DBConnector.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);
-                preparedStatement.setString(1, username);
-                preparedStatement.setString(2, password);  // Note: Replace this with hashed password in real-world scenarios
+        try {
+            Connection connection = DBConnector.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(selectQuery);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);  // Note: Replace this with hashed password in real-world scenarios
 
-                ResultSet resultSet = preparedStatement.executeQuery();
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-                if (resultSet.next()) {
-                    currentUser = new User(
-                            resultSet.getString("name"),
-                            resultSet.getString("username"),
-                            resultSet.getString("password"),  // Note: Replace this with hashed password in real-world scenarios
-                            UserRole.valueOf(resultSet.getString("roleName").toUpperCase())
-                    );
+            if (resultSet.next()) {
+                currentUser = new User(
+                        resultSet.getString("name"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password"),  // Note: Replace this with hashed password in real-world scenarios
+                        UserRole.valueOf(resultSet.getString("roleName").toUpperCase())
+                );
 
-                    currentUserRole = currentUser.getRole();
-                    System.out.println("Login successful. Welcome, " + currentUser.getName() + "!");
-                    SideBar.showNextScene();
-                    isAuthenticated = true;
+                currentUserRole = currentUser.getRole();
+                showAlert("Login successful. Welcome, " + currentUser.getUsername() + "!", Alert.AlertType.INFORMATION);
+                SideBar.showNextScene();
+                isAuthenticated = true;
 
-                } else {
-                    System.out.println("Invalid credentials. Please try again.");
-                }
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
-
-
-
-        } while (!isAuthenticated);
+            if (!isAuthenticated) {
+                showAlert("Invalid username or password", Alert.AlertType.ERROR);
+                System.out.println("Invalid credentials. Please try again.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+
+
+
 
 
     // Check if the provided user credentials are valid

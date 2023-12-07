@@ -7,7 +7,7 @@ import java.sql.*;
 //import java.sql.SQLException;
 
 public class DBConnector {
-    private static final String url = "jdbc:mysql://localhost:3308/mycafe";
+    private static final String url = "jdbc:mysql://localhost:3306/mycafe";
     private static final String username = "root";
     private static final String password = "";
     private static Connection connection;
