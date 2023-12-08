@@ -51,11 +51,15 @@ public class Category implements Serializable {
 
     @Override
     public String toString() {
-        return "Category [ID: " + categoryId + ", Name: " + categoryName + "]";
+        return categoryName;
     }
 
     // Check if the category already exists
     public boolean equalsIgnoreCase(String categoryName) {
         return this.categoryName.equalsIgnoreCase(categoryName);
+    }
+
+    public int getItemId() {
+        return categoryId;
     }
 }

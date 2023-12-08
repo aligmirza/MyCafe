@@ -23,7 +23,7 @@ public class SideBar {
     public static void showNextScene() {
 
         BorderPane bpane = new BorderPane();
-        bpane.setStyle("-fx-background-color: grey;");
+        bpane.setStyle("-fx-background-color: rgba(255,255,255,0.93)");
 
 //        AnchorPane anchorPane = new AnchorPane();
 //        anchorPane.setStyle("-fx-background-color: black;");

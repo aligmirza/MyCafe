@@ -2,6 +2,8 @@ package com.progmeleon.mycafe.config;
 
 import com.progmeleon.mycafe.config.DBConnector;
 import com.progmeleon.mycafe.model.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ConfigureExistingData {
-    public static List<Category> categories;
+    public static ObservableList<Category> categories = FXCollections.observableArrayList();;
     public static List<Item> items;
     public static List<User> users;
     public static List<Deal> deals;
@@ -25,38 +27,18 @@ public class ConfigureExistingData {
 
     public static void loadExistingData() {
         // Initialize lists
-        categories = new ArrayList<>();
+
         items = new ArrayList<>();
         users = new ArrayList<>();
         deals = new ArrayList<>();
         loadCategories();
+        loadItems();
+        loadUsers();
+        loadDeals();
 
-
-
-        // Use ExecutorService to run tasks concurrently
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
-
-        // Create tasks for loading data from different tables
-        List<Callable<Void>> tasks = new ArrayList<>();
-//        tasks.add(() -> loadCategories());
-//        tasks.add(() -> loadItems());
-//        tasks.add(() -> loadUsers());
-//        tasks.add(() -> loadDeals());
-
-        try {
-            // Invoke all tasks and wait for completion
-            executorService.invokeAll(tasks);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            // Shutdown the executor service
-            executorService.shutdown();
-        }
     }
 
-    private static void loadCategories() {
-        // Implement loading categories from the database
-        // You can modify the SQL query based on your database schema
+    public static void loadCategories() {
         String selectCategoriesQuery = "SELECT * FROM category";
 
         try (Connection connection = DBConnector.getConnection();
@@ -64,10 +46,11 @@ public class ConfigureExistingData {
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
+                int categoryId = resultSet.getInt("id");
+
                 String categoryName = resultSet.getString("categoryName");
 
-                Category category = new Category(id, categoryName);
+                Category category = new Category(categoryId,categoryName);
                 categories.add(category);
             }
 
@@ -150,5 +133,9 @@ public class ConfigureExistingData {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    public static ObservableList<Category> getCategories() {
+        return categories;
     }
 }

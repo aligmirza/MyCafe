@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -53,23 +54,28 @@ public class Components extends Application {
     private BorderPane createBorderPane() {
         BorderPane borderPane = new BorderPane();
 
-        Label anchorpaneLabel = new Label("My Cafe");
-        anchorpaneLabel.setAlignment(Pos.CENTER);
-        anchorpaneLabel.setStyle("-fx-text-fill: grey; -fx-font-weight: Bold;");
-        anchorpaneLabel.setFont(Font.font("Ariel", 16));
+//        Label anchorpaneLabel = new Label("My Cafe");
+//        anchorpaneLabel.setAlignment(Pos.CENTER);
+       Image image = new Image("file:E:\\2nd Semester\\Java opp\\Finalproject\\src\\img_5.png");
+       ImageView imageView = new ImageView(image);
 
+//        anchorpaneLabel.setStyle("-fx-text-fill: grey; -fx-font-weight: Bold; -fx-font-size: 30px; ");
+//        anchorpaneLabel.setFont(Font.font("Ariel", 20));
 
         GridPane layout = loginGridPane();
 
         borderPane.setCenter(layout);
 
         AnchorPane anchorPane = new AnchorPane();
-        AnchorPane.setTopAnchor(anchorpaneLabel, 0.0);
-        AnchorPane.setRightAnchor(anchorpaneLabel, 0.0);
-        AnchorPane.setBottomAnchor(anchorpaneLabel, 0.0);
-        AnchorPane.setLeftAnchor(anchorpaneLabel, 0.0);
-        anchorPane.getChildren().addAll(anchorpaneLabel);
-        anchorPane.setStyle("-fx-background-color: black;");
+//        AnchorPane.setTopAnchor(anchorpaneLabel, 0.0);
+//        AnchorPane.setRightAnchor(anchorpaneLabel, 0.0);
+//        AnchorPane.setBottomAnchor(anchorpaneLabel, 0.0);
+//        AnchorPane.setLeftAnchor(anchorpaneLabel, 0.0);
+//        anchorPane.getChildren().add(anchorpaneLabel);
+        anchorPane.getChildren().add(imageView);
+
+
+        anchorPane.setStyle("-fx-background-color: black");
         anchorPane.setPrefWidth(200);
         borderPane.setLeft(anchorPane);
 
@@ -83,35 +89,55 @@ public class Components extends Application {
         layout.setVgap(10);
 
         TextField username = new TextField();
+        username.setPromptText("Enter Username");
         username.setPrefWidth(200);
         username.setPrefHeight(30);
 
         PasswordField password = new PasswordField();
+        password.setPromptText("Enter password");
         password.setPrefWidth(200);
         password.setPrefHeight(30);
 
-        Label label = createLabel("Username");
-        Label label1 = createLabel("Password");
+        VBox signUpBox = new VBox();
+        signUpBox.setAlignment(Pos.CENTER);
+        ImageView signUpImage = new ImageView(new Image("file:E:\\2nd Semester\\Java opp\\Finalproject\\src\\img_3.png"));
+        signUpImage.setFitHeight(60);
+        signUpImage.setFitWidth(80);
+        Label signUpLabel = new Label("", signUpImage);
+        signUpBox.getChildren().addAll(signUpLabel);
 
-        layout.add(label, 0, 0);
-        layout.add(label1, 0, 1);
-        layout.add(username, 2, 0);
-        layout.add(password, 2, 1);
+        ImageView UserImage = new ImageView(new Image("file:E:\\2nd Semester\\Java opp\\Finalproject\\src\\img_1.png"));
+        UserImage.setFitHeight(40);
+        UserImage.setFitWidth(40);
+        Label label = new Label("",UserImage);
+
+        ImageView keyIcon = new ImageView(new Image("file:E:\\2nd Semester\\Java opp\\Finalproject\\src\\img_2.png"));
+        keyIcon.setFitHeight(40);
+        keyIcon.setFitWidth(40);
+        Label passwordlabel = new Label("",keyIcon);
+
+        layout.add(signUpBox,2,0);
+        layout.add(label, 0, 1);
+        layout.add(passwordlabel, 0, 2);
+        layout.add(username, 2, 1);
+//        HBox passwordBox = new HBox(5);
+//        passwordBox.getChildren().addAll(passwordlabel, password);
+//        layout.add(passwordBox, 2, 1);
+        layout.add(password, 2, 2);
         layout.setAlignment(Pos.CENTER);
 
 //        Button register = createButton("Forgot Password");
-        Button register = new Button("Already Have An Account? Login");
+        Button register = new Button("Forget Password ?");
         register.setFont(new Font("Arial",15));
-        register.setStyle("-fx-text-fill: black; -fx-border-color: transparent; -fx-cursor: hand; -fx-background-color: transparent");
-//        register.setUnderline(true);
-//        register.setOnAction(e->{
-//            displayLoginScene(stage,userManager);
+        register.setStyle("-fx-text-fill: black; -fx-border-color: transparent; -fx-cursor: hand; -fx-background-color: transparent; ");
+        register.setUnderline(true);
+
         Button loginbutton = new Button("Login");
         loginbutton.setStyle("-fx-cursor: hand");
         loginbutton.setOnAction(e -> InventorySystem.authenticateUser(username.getText(), password.getText()));
 
-        layout.add(register, 2, 2);
-        layout.add(loginbutton, 2, 3);
+        layout.add(register, 2, 3);
+        layout.add(loginbutton, 2, 4);
 
         return layout;
     }

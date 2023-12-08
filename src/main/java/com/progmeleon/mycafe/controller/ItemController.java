@@ -52,7 +52,7 @@ public class ItemController {
 //                        addItem();
                         break;
                     case 2:
-                        deleteItem();
+//                        deleteItem();
                         break;
                     case 3:
                         updateItem();
@@ -131,18 +131,18 @@ public class ItemController {
 
 
     // Delete item
-    private void deleteItem() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter item name to delete: ");
-        String itemName = scanner.nextLine();
+    public static void deleteItem(int id) {
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.print("Enter item name to delete: ");
+//        String itemName = scanner.nextLine();
 
         // Use SQL query to delete the item
-        String deleteQuery = "DELETE FROM item WHERE itemName = ?";
+        String deleteQuery = "DELETE FROM item WHERE id = ?";
 
         try (Connection connection = DBConnector.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery)) {
 
-            preparedStatement.setString(1, itemName);
+            preparedStatement.setInt(1, id);
 
             int rowsAffected = preparedStatement.executeUpdate();
 
@@ -287,86 +287,6 @@ public class ItemController {
             e.printStackTrace();
         }
 
-        return null; // Item not found
+        return null;
     }
-
-
-//    public static void main(String[] args) {
-//        launch();
-//    }
-//
-//    @Override
-//    public void start(Stage primaryStage) {
-//        AnchorPane root = new AnchorPane();
-//        root.getStyleClass().addAll("card", "shadow");
-//
-//        VBox vBox = new VBox();
-//        vBox.setPrefSize(230, 180);
-//        vBox.setLayoutX(65);
-//        vBox.setLayoutY(-10);
-//
-//        String[] productNames = {"Spaghetti", "Pizza", "Burger"};
-//        double[] productPrices = {10.0, 15.0, 5.0};
-//        String[] imagePaths = {"1.png", "1.png", "1.png"};
-//
-//        for (int i = 0; i < productNames.length; i++) {
-//            showItems(vBox, productNames[i], productPrices[i], imagePaths[i]);
-//        }
-//
-//        root.getChildren().add(vBox);
-//
-//        Scene scene = new Scene(root);
-//        scene.getStylesheets().add("cardDesign.css");
-//
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
-//    }
-//
-//    private void showItems(VBox parent, String productName, double productPrice, String imagePath) {
-//        HBox headerHBox = new HBox();
-//        headerHBox.setPrefSize(230, 29);
-//
-//        Label prodNameLabel = new Label(productName);
-//        prodNameLabel.setPrefSize(151, 21);
-//        prodNameLabel.setFont(new Font(15));
-//        HBox.setMargin(prodNameLabel, new Insets(0, 0, 0, 25));
-//
-//        Label prodPriceLabel = new Label(String.format("$%.2f", productPrice));
-//        prodPriceLabel.setPrefSize(86, 21);
-//        prodPriceLabel.setFont(new Font(15));
-//        HBox.setMargin(prodPriceLabel, new Insets(0, 25, 0, 0));
-//
-//        headerHBox.getChildren().addAll(prodNameLabel, prodPriceLabel);
-//
-//        AnchorPane imageAnchorPane = new AnchorPane();
-//        imageAnchorPane.setPrefSize(230, 101);
-//
-//        ImageView prodImageView = new ImageView(new Image(imagePath));
-//        prodImageView.setFitHeight(94);
-//        prodImageView.setFitWidth(190);
-//        prodImageView.setLayoutX(20);
-//        prodImageView.setLayoutY(4);
-//        imageAnchorPane.getChildren().add(prodImageView);
-//
-//        HBox buttonHBox = new HBox();
-//        buttonHBox.setPrefSize(230, 48);
-//
-//        Spinner<Integer> prodSpinner = new Spinner<>();
-//        prodSpinner.setPrefSize(100, 25);
-//        HBox.setMargin(prodSpinner, new Insets(0, 10, 0, 0));
-//
-//        Button prodAddBtn = new Button("Add");
-//        prodAddBtn.setPrefSize(81, 25);
-//        prodAddBtn.getStyleClass().add("btn");
-//
-//        buttonHBox.getChildren().addAll(prodSpinner, prodAddBtn);
-//
-//        VBox productVBox = new VBox();
-//        productVBox.getChildren().addAll(headerHBox, imageAnchorPane, buttonHBox);
-//
-//        parent.getChildren().add(productVBox);
-//    }
-
-
-
 }
